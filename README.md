@@ -1,6 +1,6 @@
-# OctoPrint-TasmotaMQTT
+# OctoPrint-EspurnaMQTT
 
-This plugin allows the control of [Tasmota](https://github.com/arendst/Sonoff-Tasmota) devices from within OctoPrint via [MQTT](https://github.com/arendst/Sonoff-Tasmota/wiki/MQTT-Overview#mqtt-overview) commands.
+This plugin allows the control of [Espurna](https://github.com/xoseperez/espurna) devices from within OctoPrint via [MQTT](https://github.com/xoseperez/espurna/wiki/MQTT) commands.
 
 ## Prerequisites
 
@@ -16,8 +16,8 @@ Install via the Plugin Manager or manually using this URL:
 
 ## Configuration
 
-- Once installed your Tasmota devices will need to have the FullTopic configured as **%topic%/%prefix%/**
-- Use the Tasmota device's topic in the Tasmota-MQTT Plugin settings for the individual relays.
+- Once installed your Espurna devices will allow you to customise the topic.  Specify the full topic in the configuration.
+- Use the displayed device's topic in the Espurna-MQTT Plugin settings for the individual relays.
 - For multiple relay devices enter the index number that matches your desired relay.
 - For single relay devices like the [iTead Sonoff S20 Smart Socket](https://www.itead.cc/smart-socket.html), leave Relay # blank.
 - Full Topic in plugin settings must match your relay's `Full Topic` pattern.
@@ -31,6 +31,4 @@ Install via the Plugin Manager or manually using this URL:
 ![screenshot](relay_editor.png)
 
 ## Support My Efforts
-I programmed this plugin for fun and do my best effort to support those that have issues with it, please return the favor and support me.
-
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://paypal.me/jneilliii)
+This is forked form Tasmota-MQTT plugin by https://github.com/jneilliii/OctoPrint-TasmotaMQTT.  Please consider supporting him if you find this helpful, or dropping me a message if you prefer Espurna over Tasmota ;-).
