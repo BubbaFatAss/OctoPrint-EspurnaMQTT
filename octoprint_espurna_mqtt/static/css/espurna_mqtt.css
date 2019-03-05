@@ -10,7 +10,7 @@
 	color: #808080 !important;
 }
 
-#TasmotaMQTTRelayEditor table th, #TasmotaMQTTRelayEditor table td {
+#EspurnaMQTTRelayEditor table th, #EspurnaMQTTRelayEditor table td {
 	border-top: none;
 	vertical-align: top;
 }

@@ -1,11 +1,11 @@
 /*
- * View model for OctoPrint-TasmotaMQTT
+ * View model for OctoPrint-EspurnaMQTT
  *
  * Author: jneilliii
  * License: AGPLv3
  */
 $(function() {
-    function TasmotaMQTTViewModel(parameters) {
+    function EspurnaMQTTViewModel(parameters) {
         var self = this;
 
         self.loginStateViewModel = parameters[0];
@@ -17,12 +17,12 @@ $(function() {
 		self.isPrinting = ko.observable(false);
 		
 		self.onBeforeBinding = function() {
-			self.arrRelays(self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays());
+			self.arrRelays(self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays());
         }
 		
 		self.onAfterBinding = function() {
             $.ajax({
-                url: API_BASEURL + "plugin/tasmota_mqtt",
+                url: API_BASEURL + "plugin/espurna_mqtt",
                 type: "POST",
                 dataType: "json",
                 data: JSON.stringify({
@@ -34,7 +34,7 @@ $(function() {
 		
 		self.onEventSettingsUpdated = function(payload) {
 			self.settingsViewModel.requestData();
-			self.arrRelays(self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays());
+			self.arrRelays(self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays());
 		}
 		
 		self.onEventPrinterStateChanged = function(payload) {
@@ -46,18 +46,18 @@ $(function() {
 		}
 		
 		self.onDataUpdaterPluginMessage = function(plugin, data) {
-			if (plugin != "tasmota_mqtt") {
+			if (plugin != "espurna_mqtt") {
 				return;
 			}
 			if (data.noMQTT) {
 				new PNotify({
-							title: 'Tasmota-MQTT Error',
+							title: 'Espurna-MQTT Error',
 							text: 'Missing the <a href="https:\/\/plugins.octoprint.org\/plugins\/mqtt\/" target="_blank">MQTT<\/a> plugin. Please install that plugin to make this plugin operational.',
 							type: 'error',
 							hide: false
 							});
 			} else {
-				var relay = ko.utils.arrayFirst(self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays(),function(item){
+				var relay = ko.utils.arrayFirst(self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays(),function(item){
 					return (item.topic() == data.topic) && (item.relayN() == data.relayN);
 					}) || {'topic':data.topic,'relayN':data.relayN,'currentstate':'UNKNOWN'};
 				if(relay.currentstate != data.currentstate) {
@@ -71,20 +71,20 @@ $(function() {
 		self.relayClick = function(data) {
 			self.processing.push(data.topic() + '|' + data.relayN());
 			switch(data.currentstate()) {
-				case "ON":
+				case "1":
 					if(data.warn() || (data.warnPrinting() && self.isPrinting())){
 						self.selectedRelay(data);
-						$("#TasmotaMQTTWarning").modal("show");
+						$("#EspurnaMQTTWarning").modal("show");
 					} else {
 						self.toggleRelay(data);
 					}
 					break;
-				case "OFF":
+				case "0":
 					self.toggleRelay(data);
 					break;
 				default:
 					$.ajax({
-						url: API_BASEURL + "plugin/tasmota_mqtt",
+						url: API_BASEURL + "plugin/espurna_mqtt",
 						type: "POST",
 						dataType: "json",
 						data: JSON.stringify({
@@ -102,9 +102,9 @@ $(function() {
 		}
 		
 		self.toggleRelay = function(data) {
-			$("#TasmotaMQTTWarning").modal("hide");
+			$("#EspurnaMQTTWarning").modal("hide");
 			$.ajax({
-				url: API_BASEURL + "plugin/tasmota_mqtt",
+				url: API_BASEURL + "plugin/espurna_mqtt",
 				type: "POST",
 				dataType: "json",
 				data: JSON.stringify({
@@ -117,8 +117,8 @@ $(function() {
         };
 		
 		self.addRelay = function() {
-			var arrRelaysLength = self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays().length;
-			var nextIndex = self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays()[arrRelaysLength-1].index()+1;
+			var arrRelaysLength = self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays().length;
+			var nextIndex = self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays()[arrRelaysLength-1].index()+1;
 			self.selectedRelay( {'index':ko.observable(nextIndex),
 								'topic':ko.observable('sonoff'),
 								'relayN':ko.observable(''),
@@ -139,14 +139,14 @@ $(function() {
 								'sysCmdRunOff':ko.observable(""),
 								'sysCmdOffDelay':ko.observable(0),
 								'currentstate':ko.observable('UNKNOWN')} );
-			self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays.push(self.selectedRelay());
-			$("#TasmotaMQTTRelayEditor").modal("show");																							
+			self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays.push(self.selectedRelay());
+			$("#EspurnaMQTTRelayEditor").modal("show");																							
 		}
 		
 		self.removeRelay = function(data) {
-			self.settingsViewModel.settings.plugins.tasmota_mqtt.arrRelays.remove(data);
+			self.settingsViewModel.settings.plugins.espurna_mqtt.arrRelays.remove(data);
 			$.ajax({
-					url: API_BASEURL + "plugin/tasmota_mqtt",
+					url: API_BASEURL + "plugin/espurna_mqtt",
 					type: "POST",
 					dataType: "json",
 					data: JSON.stringify({
@@ -160,7 +160,7 @@ $(function() {
 		
 		self.editRelay = function(data) {
 			self.selectedRelay(data);
-			$("#TasmotaMQTTRelayEditor").modal("show");
+			$("#EspurnaMQTTRelayEditor").modal("show");
 		}
     }
 
@@ -169,10 +169,10 @@ $(function() {
      * and a full list of the available options.
      */
     OCTOPRINT_VIEWMODELS.push({
-        construct: TasmotaMQTTViewModel,
+        construct: EspurnaMQTTViewModel,
         // ViewModels your plugin depends on, e.g. loginStateViewModel, settingsViewModel, ...
         dependencies: ["loginStateViewModel", "settingsViewModel"],
-        // Elements to bind to, e.g. #settings_plugin_tasmota-mqtt, #tab_plugin_tasmota-mqtt, ...
-        elements: ["#settings_plugin_tasmota_mqtt","#navbar_plugin_tasmota_mqtt"]
+        // Elements to bind to, e.g. #settings_plugin_Espurna-mqtt, #tab_plugin_Espurna-mqtt, ...
+        elements: ["#settings_plugin_espurna_mqtt","#navbar_plugin_espurna_mqtt"]
     });
 });
