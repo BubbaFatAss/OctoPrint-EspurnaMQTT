@@ -31,4 +31,4 @@ Install via the Plugin Manager or manually using this URL:
 ![screenshot](relay_editor.png)
 
 ## Support My Efforts
-This is forked form Tasmota-MQTT plugin by https://github.com/jneilliii/OctoPrint-TasmotaMQTT.  Please consider supporting him if you find this helpful, or dropping me a message if you prefer Espurna over Tasmota ;-).
+This is forked from Tasmota-MQTT plugin by https://github.com/jneilliii/OctoPrint-TasmotaMQTT.  Please consider supporting him if you find this helpful, or dropping me a message if you prefer Espurna over Tasmota ;-).
