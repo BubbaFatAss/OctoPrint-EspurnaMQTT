@@ -42,7 +42,7 @@ class EspurnaMQTTPlugin(octoprint.plugin.SettingsPlugin,
 			if "mqtt_subscribe" in helpers:
 				self.mqtt_subscribe = helpers["mqtt_subscribe"]
 				for relay in self._settings.get(["arrRelays"]):
-					self._logger.info("Subscripbing to MQTT Topic {}".format(self.generate_mqtt_full_topic(relay=relay, prefix="relay/")))
+					#self._logger.info("Subscripbing to MQTT Topic {}".format(self.generate_mqtt_full_topic(relay=relay, prefix="relay/")))
 					self.mqtt_subscribe(self.generate_mqtt_full_topic(relay=relay, prefix="relay/"), self._on_mqtt_subscription, kwargs=dict(top=relay["topic"],relayN=relay["relayN"]))
 			if "mqtt_unsubscribe" in helpers:
 				self.mqtt_unsubscribe = helpers["mqtt_unsubscribe"]
@@ -50,12 +50,14 @@ class EspurnaMQTTPlugin(octoprint.plugin.SettingsPlugin,
 			self._plugin_manager.send_plugin_message(self._identifier, dict(noMQTT=True))
 
 	def _on_mqtt_subscription(self, topic, message, retained=None, qos=None, *args, **kwargs):
-		self._logger.info("Received message for {topic}: {message}".format(**locals()))
+		#self._logger.info("Received message for {topic}: {message}".format(**locals()))
 		self.mqtt_publish("octoprint/plugin/Espurna", "echo: " + message)
 		newrelays = []
 		bolRelayStateChanged = False
 		for relay in self._settings.get(["arrRelays"]):
+			#self._logger.info("Testing {} against {}.".format(relay["topic"], "{top}".format(**kwargs)))
 			if relay["topic"] == "{top}".format(**kwargs) and relay["relayN"] == "{relayN}".format(**kwargs) and relay["currentstate"] != message:
+				#self._logger.info("Relay matches, updating state and sending plugin message.")
 				bolRelayStateChanged = True
 				relay["currentstate"] = message
 				self._plugin_manager.send_plugin_message(self._identifier, dict(topic="{top}".format(**kwargs),relayN="{relayN}".format(**kwargs),currentstate=message))
@@ -103,30 +105,30 @@ class EspurnaMQTTPlugin(octoprint.plugin.SettingsPlugin,
 		if not user_permission.can():
 			from flask import make_response
 			return make_response("Insufficient rights", 403)
-		self._logger.info("Recieved API command {}".format(command))
+		#self._logger.info("Recieved API command {}".format(command))
 		if command == 'toggleRelay':
-			self._logger.info("toggling {topic} relay {relayN}".format(**data))
+			#self._logger.info("toggling {topic} relay {relayN}".format(**data))
 			for relay in self._settings.get(["arrRelays"]):
 				if relay["topic"] == "{topic}".format(**data) and relay["relayN"] == "{relayN}".format(**data):
-					self._logger.info("Relay Matches")
+					#self._logger.info("Relay Matches")
 					if relay["currentstate"] == "1":
 						self.turn_off(relay)
 					if relay["currentstate"] == "0":				
 						self.turn_on(relay)
 		if command == 'checkStatus':
 			for relay in self._settings.get(["arrRelays"]):
-				self._logger.info("checking status of %s relay %s" % (relay["topic"],relay["relayN"]))
+				#self._logger.info("checking status of %s relay %s" % (relay["topic"],relay["relayN"]))
 				try:
 					self.mqtt_publish(self.generate_mqtt_full_topic(relay, useRelay=False, suffix="status"),"1")
 				except:
 					self._plugin_manager.send_plugin_message(self._identifier, dict(noMQTT=True))
 					
 		if command == 'checkRelay':
-			self._logger.info("subscribing to {topic} relay {relayN}".format(**data))
+			#self._logger.info("subscribing to {topic} relay {relayN}".format(**data))
 			for relay in self._settings.get(["arrRelays"]):
 				if relay["topic"] == "{topic}".format(**data) and relay["relayN"] == "{relayN}".format(**data):
 					self.mqtt_subscribe(self.generate_mqtt_full_topic(relay, prefix="relay/"), self._on_mqtt_subscription, kwargs=dict(top="{topic}".format(**data),relayN="{relayN}".format(**data)))
-					self._logger.info("checking {topic} relay {relayN}".format(**data))
+					#self._logger.info("checking {topic} relay {relayN}".format(**data))
 					self.mqtt_publish(self.generate_mqtt_full_topic(relay, useRelay=False, suffix="status"),"1")
 			
 		if command == 'removeRelay':
@@ -194,7 +196,7 @@ class EspurnaMQTTPlugin(octoprint.plugin.SettingsPlugin,
 		else:
 			full_topic = re.sub(r'%relay%', "", full_topic)
 		full_topic = re.sub(r'%suffix%', suffix, full_topic)
-		self._logger.info("Generated full MQTT topic: {}".format(full_topic))
+		#self._logger.info("Generated full MQTT topic: {}".format(full_topic))
 		return full_topic
 			
 	##~~ WizardPlugin mixin
